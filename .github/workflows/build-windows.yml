@@ -1,0 +1,56 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+
+  build:
+  
+    runs-on: windows-latest
+
+    env:
+      VCPKG_DISABLE_METRICS:
+      # https://github.com/MicrosoftDocs/vcpkg-docs/blob/main/vcpkg/consume/binary-caching-local.md
+      VCPKG_DEFAULT_BINARY_CACHE: "${{ github.workspace }}/vcpkg/bincache"
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg/bincache,readwrite
+      VCPKG_DOWNLOADS: "${{ github.workspace }}/vcpkg/downloads"
+      
+    steps:
+    
+      - name: "Create directory ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}"
+        shell: cmd
+        run: mkdir "${{ env.VCPKG_DEFAULT_BINARY_CACHE }}"
+
+      - name: "Create directory ${{ env.VCPKG_DOWNLOADS }}"
+        shell: cmd
+        run: mkdir "${{ env.VCPKG_DOWNLOADS }}"
+
+      - name: Cache vcpkg packages
+        id: cache-vcpkg-packages
+        uses: actions/cache@v5
+        with:
+          path: |
+            ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+            ${{ env.VCPKG_DOWNLOADS }}
+            
+          key: |
+            ${{ runner.os }}-vcpkg-qt-cache-invalidate-manually
+
+      - name: Setup Qt6
+        shell: cmd
+        run: c:\vcpkg\vcpkg install --clean-after-build qtbase qtbase[windeployqt]
+
+      - name: List vcpkg packages
+        shell: cmd
+        run: vcpkg list
+
+      - name: Show vcpkg binary cache directory sizes
+        shell: cmd
+        run: du -d 1 -ah "${{ github.workspace }}/vcpkg"
