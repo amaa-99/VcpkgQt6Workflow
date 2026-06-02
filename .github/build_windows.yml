@@ -29,4 +29,5 @@ jobs:
         run:
           echo Setting up Qt6...
           vcpkg search qt
+          vcpgk search ninja
           
