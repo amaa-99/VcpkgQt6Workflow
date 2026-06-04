@@ -41,11 +41,11 @@ jobs:
             ${{ env.VCPKG_DOWNLOADS }}
             
           key: |
-            ${{ runner.os }}-vcpkg-qt-cache-invalidate-manually
+            ${{ runner.os }}-vcpkg-qt-cache-static-release-build-invalidate-manually
 
       - name: Setup Qt6
         shell: cmd
-        run: c:\vcpkg\vcpkg install --clean-after-build qtbase qtbase[windeployqt]
+        run: c:\vcpkg\vcpkg install --clean-after-build qtbase qtbase[windeployqt]:x64-windows-static-release
 
       - name: List vcpkg packages
         shell: cmd
